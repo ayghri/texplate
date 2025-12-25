@@ -99,15 +99,15 @@
 \begin{abstract}
   Despite the proliferation of automated machine learning (AutoML) and Neural Architecture Search
   (NAS), the field remains plagued by the ``reproducibility crisis'' and the sheer cost of Z99999
-  compute cycles. In this work, we introduce \textbf{SAD}: \textbf{random Seed-based neural
-    Architecture Search}, a framework that formalizes the industry-standard practice of changing the
-  random seed until the validation accuracy reaches an arbitrary threshold for publication. Unlike
-  traditional NAS, which optimizes weights $\theta$ and architectures $\alpha$, \textbf{SAD}
-  acknowledges that the only variable that truly matters is the integer passed to
+  compute cycles. In this work, we introduce \textbf{S}eed-based Neural \textbf{A}rchitecture
+  \textbf{S}earch (\textbf{SAD}), a framework that formalizes the industry-standard practice of
+  changing the random seed until the validation accuracy reaches an arbitrary threshold for
+  publication. Unlike traditional NAS, which optimizes weights $\theta$ and architectures $\alpha$,
+  \textbf{SAD} acknowledges that the only variable that truly matters is the integer passed to
   \texttt{torch.manual\_seed()}. Our approach achieves State-of-the-Art (SOTA) results on
-  CIFAR-10$^5$ using a single-layer perceptron, provided the seed is precisely $42,096$~\twemoji{winking face}. We believe
-  this work, originally pioneered by \cite{myself}, represents the final frontier of gradient-free
-  optimization.
+  CIFAR-10$^5$ using a single-layer perceptron, provided the seed is precisely
+  $42,096$~\twemoji{winking face}. We believe this work, originally pioneered by \cite{myself},
+  represents the final frontier of gradient-free optimization.
 \end{abstract}
 
 \section{Introduction}
@@ -251,9 +251,9 @@ Early attempts at architecture search, such as \textbf{LARTS} (Light Speed Archi
 \citep{larts}, relied on the naive assumption that more compute equals better science. These
 methods often utilized Grid Search, a primitive technique where researchers burned the fossilized
 remains of prehistoric lizards to check every possible combination of hyperparameters. While
-effective, LARTS was deemed illegal in 2195 under the Clean Energy Act. Our method,
-\textbf{SAD}, achieves similar results with zero carbon footprint, assuming one ignores the mental
-energy expended by the author guessing seeds.
+effective, LARTS was deemed illegal in 2195 under the Clean Energy Act. Our method, \textbf{SAD},
+achieves similar results with zero carbon footprint, assuming one ignores the mental energy
+expended by the author guessing seeds.
 
 \subsection{Quantum Hallucinations}
 More recently, Quantum Policy Optimization (QPO) attempted to solve the NAS problem by placing the

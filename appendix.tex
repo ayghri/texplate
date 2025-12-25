@@ -18,8 +18,8 @@ basic Quash scripting.
     applied to QPUs}.
 
   Let $P(\text{SOTA})$ be the probability of achieving State-of-the-Art performance by randomly
-  spamming the neural interface. As the number of random seeds $N \to \infty$, the probability of finding
-  $s^*$ approaches 1.
+  spamming the neural interface. As the number of random seeds $N \to \infty$, the probability of
+  finding $s^*$ approaches 1.
   \begin{equation}
     \lim_{N \to \infty} P(s^* \in \{s_1, \dots, s_N\}) = 1 - \frac{1}{\text{luck}}
   \end{equation}
@@ -42,7 +42,7 @@ Critics argue that \textbf{SAD} lacks a gradient signal. We counter this with th
   \end{equation}
   In the \textbf{SAD} framework, the learning rate $\eta$ is set to $0$, and the update rule is replaced by:
   \begin{equation}
-    \theta_{t+1} = \mathcal{Q}\lrb{\texttt{torch.manual\_seed}(\text{randint}(0, 2^{128}))}
+    \theta_{t+1} = \mathcal{Q}\lrb{\texttt{torch.manual\_seed}(\text{randint}(0, 2^{128}-1))}
   \end{equation}
   By the Property of Teleportation, the distance between the current state and the optimal state is
   zero if the correct integer is chosen. Therefore, the gradient $\nabla_\theta$ is merely a
@@ -86,5 +86,5 @@ Qed.
   \end{equation}
   Thus, $E \propto C$. Since $C$ is physically bounded by the volume of the human stomach
   ($V_{stomach} \approx 1L$), the energy cost is $O(1)$, which is asymptotically superior to the
-  $O(N^3)$ complexity of Transformers.
+  $O(N^3)$ complexity of Hyper-Transformers.
 \end{proof}

@@ -1,0 +1,398 @@
+% Manuscript Style File
+% Based on AISTATS2026 conference template
+%
+% Prior Contributors:
+%   Arno Solin, 2025
+%   Javier Burroni, 2024
+%   Yingzhen Li, 2023
+%   Francisco Ruiz, 2022
+%   Robert Giaquinto and Krikamol Muandet, 2021
+%   Marcello Restelli, 2020
+%   Roberto Calandra, 2019
+%   Atsushi Miyauchi, Mirai Tanaka, Akiko Takeda, 2018
+%   Fernando Perez-Cruz, 2017
+%   Scott Alfeld, 2016
+%   Zoltan Szabo, 2015
+%   Antti Honkela, 2013
+%   Miro Dudik, 2011-2012
+%   Geoff Gordon, 2010
+%   Mauricio Alvarez, 2009
+%   Original by Morgan Kaufmann for proceedings format
+%
+% Customizations by Ayoub Ghriss, 2025:
+%   - Added \addauthor{} command for multiple authors with institutions and emails
+%   - Overrode \maketitle to use built-in LaTeX metadata
+%   - Simplified mode system: preprint (default) shows "Work in progress", final hides it
+%   - Cleaned up unused code and added documentation
+
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{manuscript}
+
+% =====================================================================
+% Paper Metadata and Year
+% =====================================================================
+
+\newcommand{\@manuscriptyear}{2026}
+
+% =====================================================================
+% Author Management System
+% Allows defining multiple authors with institutions and email addresses
+% =====================================================================
+
+\newcommand{\@authorlist}{}
+
+% Command: \addauthor{name}{institution}{email}
+% Adds an author with full details to the document
+\newcommand{\addauthor}[3]{%
+ \ifx\@authorlist\empty
+  \gdef\@authorlist{\@authorentry{#1}{#2}{#3}}%
+ \else
+  \g@addto@macro\@authorlist{\@authorentry{#1}{#2}{#3}}%
+ \fi
+}
+
+% Internal: Formats a single author entry with name (bold), institution (small), email (monospace)
+\newcommand{\@authorentry}[3]{%
+ {\bfseries #1}\par
+ {\small #2}\par
+ {\small \texttt{#3}}\par
+ \vspace{0.3em}%
+}
+
+% =====================================================================
+% Required Packages
+% =====================================================================
+
+\RequirePackage{amsmath}
+\RequirePackage{fancyhdr}
+
+% =====================================================================
+% Acknowledgments Command
+% Placeholder that can be customized
+% =====================================================================
+
+\providecommand{\acknowledgments}[1]{}
+
+% =====================================================================
+% Paper Mode Configuration
+% Preprint: shows "Work in progress" footnote (default)
+% Final: hides the footnote (use when paper is ready for submission)
+% =====================================================================
+
+\newcount\statePaper
+\statePaper=0  % 0 = preprint (default), 1 = final
+\newcommand{\Notice@String}{Work in progress.}
+
+% Option: final (hides the "Work in progress" notice)
+\DeclareOption{final}{%
+ \statePaper=1%
+ \renewcommand{\Notice@String}{}%
+}
+
+% Option: preprint (default - shows "Work in progress" notice)
+\newif\if@preprint
+\@preprinttrue
+\DeclareOption{preprint}{%
+ \@preprinttrue
+ \statePaper=0%
+ \renewcommand{\Notice@String}{Work in progress.}%
+}
+
+\ProcessOptions\relax
+
+% =====================================================================
+% Page Layout Configuration
+% Sets margins, text width, column setup for two-column format
+% =====================================================================
+
+\evensidemargin -0.125in
+\oddsidemargin -0.125in
+\setlength\topmargin{-25pt}
+\setlength\textheight{9.25in}
+\setlength\textwidth{6.75in}
+\setlength\columnsep{0.25in}
+\newlength\titlebox
+\setlength\titlebox{2.375in}
+\setlength\headheight{12pt}
+\setlength\headsep{15pt}
+
+% =====================================================================
+% Footer and Status Notice (Work in Progress)
+% Creates a floating box at the bottom of the first column with status
+% Adapted from ICML09.sty
+% =====================================================================
+
+\def\ftype@copyrightbox{8}
+\def\@copyrightspace{%
+ % Create a float object at the bottom of the column
+ % Must be called before first column is populated to work correctly
+ \@float{copyrightbox}[b]
+ \begin{center}
+  \setlength{\unitlength}{1pc}
+  \begin{picture}(20,1.15)
+   % Horizontal line 5pt above text, 0.8in wide
+   \put(0,1.0){\line(1,0){4.818}}
+   % Status text positioned at bottom of box
+   \put(0,0){\parbox[b]{19.75pc}{\small \Notice@String}}
+  \end{picture}
+ \end{center}
+ \end@float
+}
+
+% Suppress footer in final mode
+\ifnum\statePaper=1
+ \def\@copyrightspace{}%
+\fi
+
+% =====================================================================
+% Global Document Settings
+% Disable footskip, enable two-column layout
+% =====================================================================
+
+\setlength\footskip{3.30003pt}
+\thispagestyle{empty}
+\pagestyle{empty}
+\flushbottom
+\twocolumn
+\sloppy
+
+% Prevent table of contents entries
+\def\addcontentsline#1#2#3{}
+
+% =====================================================================
+% Title Display Command
+% Reusable command to display a title with top and bottom bars
+% Can be used for main title, appendix title, or any other titled section
+% =====================================================================
+
+\newcommand{\displaytitle}[1]{%
+ \toptitlebar
+ {\centering\Large\bfseries#1\par}%
+ \bottomtitlebar
+}
+
+% =====================================================================
+% Title and Header Setup
+% Configures running headers and custom maketitle
+% =====================================================================
+
+% Boxes to measure running header widths
+\newbox\titrun
+\newbox\autrun
+
+% Page style with fancy headers
+\pagestyle{fancy}
+\renewcommand{\headrulewidth}{0pt}
+\fancyhead{}
+\fancyfoot{}
+
+% Optional: Override running title/author (if desired)
+\def\runningtitle#1{\gdef\@runningtitle{#1}}
+\def\runningauthor#1{\gdef\@runningauthor{#1}}
+
+% =====================================================================
+% Custom maketitle Implementation
+% Uses built-in \title{}, \author{}, and \addauthor{} commands
+% Handles running headers and author display
+% =====================================================================
+
+\renewcommand{\maketitle}{%
+ \twocolumn[%
+  {%
+    % Set running title from \title{} command
+    \gdef\@runningtitle{\@title}%
+
+    % Set running author from \author{} command (same for all modes)
+    % "Work in progress" appears only in footer, not in headers
+    \gdef\@runningauthor{\@author}%
+
+    % Validate title length for running header (must fit in single line)
+    \global\setbox\titrun=\vbox{\small\bfseries\@runningtitle}%
+    \ifdim\wd\titrun>\textwidth
+     \fancyhead[CE]{\small\bfseries Running title too long}%
+    \else
+     \fancyhead[CE]{\small\bfseries\@runningtitle}%
+    \fi
+
+    % Validate author length for running header (must fit in single line)
+    \global\setbox\autrun=\vbox{\small\bfseries\@runningauthor}%
+    \ifdim\wd\autrun>\textwidth
+     \fancyhead[CO]{\small\bfseries Running author too long}%
+    \else
+     \fancyhead[CO]{\small\bfseries\@runningauthor}%
+    \fi
+
+    % Display title in spanning box across both columns
+    \hsize\textwidth
+    \linewidth\hsize
+    \displaytitle{\@title}
+
+    % Display all authors with institutions and emails
+    {\centering\@authorlist\par}%
+    \vskip 0.25in plus 1fil minus 0.125in
+   }%
+ ]%
+ % Ensure first page has no headers/footers (override fancy style)
+ \thispagestyle{empty}%
+}
+
+% Enable footer rule after title
+\renewcommand{\headrulewidth}{0.5pt}
+
+% =====================================================================
+% Abstract Environment
+% Centered "Abstract" heading with quoted text and "Work in progress" notice
+% =====================================================================
+
+\renewenvironment{abstract}{%
+ \@copyrightspace
+ \centerline{\large\bfseries Abstract}%
+ \vspace{0.5ex}%
+ \begin{quote}%
+  }{%
+  \par\end{quote}\vskip 1ex%
+}
+
+% =====================================================================
+% Section Formatting
+% Compact spacing for section headers (suitable for two-column layout)
+% =====================================================================
+
+% Section: Large bold, raggedright, compact spacing
+\def\section{\@startsection {section}{1}{\z@}{-2.0ex plus -0.5ex minus -.2ex}{1.5ex plus 0.3ex minus .2ex}{\large\bfseries\raggedright}}
+
+% Subsection: Normal bold, raggedright
+\def\subsection{\@startsection{subsection}{2}{\z@}{-1.8ex plus -0.5ex minus -.2ex}{0.8ex plus .2ex}{\normalsize\bfseries\raggedright}}
+
+% Subsubsection: Normal size
+\def\subsubsection{\@startsection{subsubsection}{3}{\z@}{-1.5ex plus -0.5ex minus -.2ex}{0.5ex plus .2ex}{\normalsize\bfseries\raggedright}}
+
+% Paragraph and subparagraph: Compact labels
+\def\paragraph{\@startsection{paragraph}{4}{\z@}{1.5ex plus 0.5ex minus .2ex}{-1em}{\normalsize\bfseries}}
+\def\subparagraph{\@startsection{subparagraph}{5}{\z@}{1.5ex plus 0.5ex minus .2ex}{-1em}{\normalsize\bfseries}}
+
+% Subsubsubsection: Custom formatting (not standard LaTeX)
+\def\subsubsubsection{\vskip 5pt{\noindent\normalsize\rm\raggedright}}
+
+% =====================================================================
+% Footnote Settings
+% Configure spacing and appearance of footnotes
+% =====================================================================
+
+\footnotesep 6.65pt
+\skip\footins 9pt plus 4pt minus 2pt
+\def\footnoterule{\kern-3pt \hrule width 5pc \kern 2.6pt }
+\setcounter{footnote}{0}
+
+% =====================================================================
+% List and Paragraph Formatting
+% Compact spacing for lists in two-column layout
+% =====================================================================
+
+\parindent 0pt
+\topsep 4pt plus 1pt minus 2pt
+\partopsep 1pt plus 0.5pt minus 0.5pt
+\itemsep 2pt plus 1pt minus 0.5pt
+\parsep 2pt plus 1pt minus 0.5pt
+\parskip .5pc
+
+% Left margins for nested lists
+\leftmargin 2em
+\leftmargini\leftmargin
+\leftmarginii 2em
+\leftmarginiii 1.5em
+\leftmarginiv 1.0em
+\leftmarginv .5em
+\leftmarginvi .5em
+\labelwidth\leftmargini
+\advance\labelwidth-\labelsep
+\labelsep 5pt
+
+% List item spacing at different nesting levels
+\def\@listi{\leftmargin\leftmargini}
+\def\@listii{\leftmargin\leftmarginii
+ \labelwidth\leftmarginii\advance\labelwidth-\labelsep
+ \topsep 2pt plus 1pt minus 0.5pt
+ \parsep 1pt plus 0.5pt minus 0.5pt
+ \itemsep \parsep}
+\def\@listiii{\leftmargin\leftmarginiii
+ \labelwidth\leftmarginiii\advance\labelwidth-\labelsep
+ \topsep 1pt plus 0.5pt minus 0.5pt
+ \parsep \z@ \partopsep 0.5pt plus 0pt minus 0.5pt
+ \itemsep \topsep}
+\def\@listiv{\leftmargin\leftmarginiv
+ \labelwidth\leftmarginiv\advance\labelwidth-\labelsep}
+\def\@listv{\leftmargin\leftmarginv
+ \labelwidth\leftmarginv\advance\labelwidth-\labelsep}
+\def\@listvi{\leftmargin\leftmarginvi
+ \labelwidth\leftmarginvi\advance\labelwidth-\labelsep}
+
+% =====================================================================
+% Math Display Spacing
+% =====================================================================
+
+\abovedisplayskip 7pt plus2pt minus5pt%
+\belowdisplayskip \abovedisplayskip
+\abovedisplayshortskip  0pt plus3pt%
+\belowdisplayshortskip  4pt plus3pt minus3pt%
+
+% =====================================================================
+% Font Sizes
+% Adjusted for two-column layout (narrower columns = tighter leading)
+% =====================================================================
+
+\def\@normalsize{\@setsize\normalsize{11pt}\xpt\@xpt}
+\def\small{\@setsize\small{10pt}\ixpt\@ixpt}
+\def\footnotesize{\@setsize\footnotesize{10pt}\ixpt\@ixpt}
+\def\scriptsize{\@setsize\scriptsize{8pt}\viipt\@viipt}
+\def\tiny{\@setsize\tiny{7pt}\vipt\@vipt}
+\def\large{\@setsize\large{14pt}\xiipt\@xiipt}
+\def\Large{\@setsize\Large{16pt}\xivpt\@xivpt}
+\def\LARGE{\@setsize\LARGE{20pt}\xviipt\@xviipt}
+\def\huge{\@setsize\huge{23pt}\xxpt\@xxpt}
+\def\Huge{\@setsize\Huge{28pt}\xxvpt\@xxvpt}
+
+% =====================================================================
+% Title Decorations
+% Top and bottom bars with spacing for title area
+% =====================================================================
+
+\def\toptitlebar{%
+ \hrule height4pt
+ \vskip .25in%
+}
+
+\def\bottomtitlebar{%
+ \vskip .25in
+ \hrule height1pt
+ \vskip .25in%
+}
+
+% =====================================================================
+% Bibliography Environment
+% Custom formatting for references section with section-sized title
+% Moves to next column if it would appear in upper half of current column
+% =====================================================================
+
+\renewenvironment{thebibliography}[1]
+{
+ % Move references to next column for better layout
+ \columnbreak%
+ \section*{\refname}%
+ \@mkboth{\MakeUppercase\refname}{\MakeUppercase\refname}%
+ \list{\@biblabel{\@arabic\c@enumiv}}%
+ {\settowidth\labelwidth{\@biblabel{#1}}%
+  \leftmargin\labelwidth
+  \advance\leftmargin\labelsep
+  \@openbib@code
+  \usecounter{enumiv}%
+  \let\p@enumiv\@empty
+  \renewcommand\theenumiv{\@arabic\c@enumiv}}%
+ \sloppy
+ \clubpenalty4000
+ \@clubpenalty \clubpenalty
+ \widowpenalty4000%
+ \sfcode`\.\@m}
+{\def\@noitemerr
+ {\@latex@warning{Empty `thebibliography' environment}}%
+ \endlist}
